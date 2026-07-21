@@ -1,5 +1,11 @@
 import type { NextConfig } from "next";
 
+const backendOrigin = (
+  process.env.BACKEND_URL ||
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, "") ||
+  ""
+).replace(/\/$/, "");
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -8,6 +14,16 @@ const nextConfig: NextConfig = {
         hostname: "cdn.simpleicons.org",
       },
     ],
+  },
+  async rewrites() {
+    // Same-origin /api/v1 → backend (avoids CORS + localhost on Vercel)
+    if (!backendOrigin) return [];
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${backendOrigin}/api/v1/:path*`,
+      },
+    ];
   },
 };
 

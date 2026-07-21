@@ -15,9 +15,17 @@ import type {
   User,
 } from "@/lib/types";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+const API_URL = (() => {
+  const configured = process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, "");
+  if (configured) return configured;
+  // Production without env: call same-origin proxy (see next.config.ts rewrites)
+  if (process.env.NODE_ENV === "production") return "/api/v1";
+  return "http://localhost:3001/api/v1";
+})();
 
+export function getApiBaseUrl(): string {
+  return API_URL;
+}
 export function getGoogleAuthUrl(): string {
   return `${API_URL}/auth/google`;
 }
