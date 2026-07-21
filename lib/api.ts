@@ -18,7 +18,6 @@ import type {
 const API_URL = (() => {
   const configured = process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, "");
   if (configured) return configured;
-  // Production without env: call same-origin proxy (see next.config.ts rewrites)
   if (process.env.NODE_ENV === "production") return "/api/v1";
   return "http://localhost:3001/api/v1";
 })();
@@ -60,10 +59,21 @@ async function request<T>(
     (headers as Record<string, string>).Authorization = `Bearer ${authToken}`;
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch {
+    const isLocalApi = API_URL.includes("localhost") || API_URL.includes("127.0.0.1");
+    throw new ApiError(
+      0,
+      isLocalApi
+        ? "Cannot reach API (localhost). On Vercel, set NEXT_PUBLIC_API_URL to your Render URL (…/api/v1) and redeploy."
+        : "Cannot reach the API. Check that the backend is running and NEXT_PUBLIC_API_URL is correct.",
+    );
+  }
 
   const data = await res.json().catch(() => ({}));
 
