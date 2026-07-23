@@ -46,7 +46,7 @@ export function LoginForm() {
     try {
       await login(email.trim(), password);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setSubmitting(false);
     }
@@ -60,7 +60,7 @@ export function LoginForm() {
       const res = await resendVerification(email.trim());
       setResendSuccess(res?.message || "Verification email sent.");
     } catch (err) {
-      setResendError(err instanceof ApiError ? err.message : "Failed to resend.");
+      setResendError(err instanceof Error ? err.message : "Failed to resend.");
     } finally {
       setResending(false);
     }
@@ -93,7 +93,15 @@ export function LoginForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-muted-foreground hover:text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <Input
                   id="password"
                   type="password"

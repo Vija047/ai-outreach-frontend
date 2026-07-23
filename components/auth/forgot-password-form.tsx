@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 
-import { AuthDivider, GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { Navbar } from "@/components/landing/navbar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,39 +16,26 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/auth-provider";
-import { ApiError } from "@/lib/api";
-
 import { IconMailCheck } from "@tabler/icons-react";
 
-type Step = "form" | "success";
-
-export function SignupForm() {
-  const { signup, user, loading: authLoading } = useAuth();
-  const router = useRouter();
-  const [step, setStep] = useState<Step>("form");
-  const [name, setName] = useState("");
+export function ForgotPasswordForm() {
+  const { forgotPassword } = useAuth();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!authLoading && user) {
-      router.replace("/dashboard");
-    }
-  }, [authLoading, user, router]);
-
-  async function handleSignup(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
-    setSubmitting(true);
+    setLoading(true);
     try {
-      await signup(name.trim(), email.trim(), password);
-      setStep("success");
+      await forgotPassword(email.trim());
+      setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create account");
+      setError(err instanceof Error ? err.message : "Failed to send reset link");
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   }
 
@@ -59,28 +44,16 @@ export function SignupForm() {
       <Navbar />
       <main className="flex flex-1 items-center justify-center px-4 py-12 sm:py-16">
         <Card className="w-full max-w-md">
-          {step === "form" ? (
+          {!success ? (
             <>
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl">Create your account</CardTitle>
+                <CardTitle className="text-2xl">Reset your password</CardTitle>
                 <CardDescription>
-                  Start with 20 free credits. No credit card required.
+                  Enter your email address and we'll send you a recovery link.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <GoogleAuthButton label="Sign up with Google" />
-                  <AuthDivider />
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input
-                      id="name"
-                      placeholder="Your name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                    />
-                  </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -92,31 +65,19 @@ export function SignupForm() {
                       required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Min. 8 characters"
-                      minLength={8}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
                   {error && (
                     <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
                       {error}
                     </p>
                   )}
-                  <Button type="submit" className="w-full active:scale-[0.98] transition-transform duration-100" disabled={submitting}>
-                    {submitting ? "Creating account..." : "Create account"}
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Sending..." : "Send reset link"}
                   </Button>
                 </form>
               </CardContent>
               <CardFooter className="justify-center">
                 <p className="text-center text-sm text-muted-foreground">
-                  Already have an account?{" "}
+                  Remembered your password?{" "}
                   <Link href="/login" className="text-primary hover:underline">
                     Log in
                   </Link>
@@ -131,17 +92,17 @@ export function SignupForm() {
                 </div>
                 <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
                 <CardDescription className="text-sm">
-                  We've sent a verification link to <span className="font-semibold text-foreground">{email}</span>.
+                  We've sent a password reset link to <span className="font-semibold text-foreground">{email}</span>.
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center pt-2 pb-6">
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Registration successful. Please verify your email before logging in.
+                  Please click the link in the email to securely update your password.
                 </p>
               </CardContent>
-              <CardFooter className="flex flex-col space-y-2">
+              <CardFooter>
                 <Button asChild className="w-full">
-                  <Link href="/login">Go to Login</Link>
+                  <Link href="/login">Return to Login</Link>
                 </Button>
               </CardFooter>
             </>
