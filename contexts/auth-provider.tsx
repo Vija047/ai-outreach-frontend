@@ -19,9 +19,8 @@ interface AuthContextValue {
   profile: SellerProfile | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  sendSignupOtp: (name: string, email: string, password: string) => Promise<void>;
-  verifySignupOtp: (email: string, otp: string) => Promise<void>;
-  resendSignupOtp: (email: string) => Promise<void>;
+  signup: (name: string, email: string, password: string) => Promise<{ message: string }>;
+  resendVerification: (email: string) => Promise<{ message: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   refreshProfile: () => Promise<SellerProfile | null>;
@@ -88,23 +87,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [refreshProfile, router],
   );
 
-  const sendSignupOtp = useCallback(
+  const signup = useCallback(
     async (name: string, email: string, password: string) => {
-      await api.sendSignupOtp({ name, email, password });
+      return await api.signup({ name, email, password });
     },
     [],
   );
 
-  const verifySignupOtp = useCallback(
-    async (email: string, otp: string) => {
-      const res = await api.verifySignupOtp({ email, otp });
-      await afterAuth(res.accessToken, res.user);
-    },
-    [afterAuth],
-  );
-
-  const resendSignupOtp = useCallback(async (email: string) => {
-    await api.resendSignupOtp({ email });
+  const resendVerification = useCallback(async (email: string) => {
+    return await api.resendVerification(email);
   }, []);
 
   const login = useCallback(
@@ -133,9 +124,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile,
       loading,
       login,
-      sendSignupOtp,
-      verifySignupOtp,
-      resendSignupOtp,
+      signup,
+      resendVerification,
       logout,
       refreshUser,
       refreshProfile,
@@ -145,9 +135,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile,
       loading,
       login,
-      sendSignupOtp,
-      verifySignupOtp,
-      resendSignupOtp,
+      signup,
+      resendVerification,
       logout,
       refreshUser,
       refreshProfile,

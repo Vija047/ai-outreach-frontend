@@ -99,22 +99,21 @@ async function request<T>(
 }
 
 export const api = {
-  sendSignupOtp: (body: { name: string; email: string; password: string }) =>
-    request<{ message: string; email: string }>("/auth/signup/send-otp", {
+  signup: (body: { name: string; email: string; password: string }) =>
+    request<{ message: string }>("/auth/signup", {
       method: "POST",
       body: JSON.stringify(body),
     }),
 
-  resendSignupOtp: (body: { email: string }) =>
-    request<{ message: string; email: string }>("/auth/signup/resend-otp", {
-      method: "POST",
-      body: JSON.stringify(body),
+  verifyEmail: (token: string) =>
+    request<{ message: string }>(`/auth/verify-email?token=${encodeURIComponent(token)}`, {
+      method: "GET",
     }),
 
-  verifySignupOtp: (body: { email: string; otp: string }) =>
-    request<AuthResponse>("/auth/signup/verify-otp", {
+  resendVerification: (email: string) =>
+    request<{ message: string }>("/auth/resend-verification", {
       method: "POST",
-      body: JSON.stringify(body),
+      body: JSON.stringify({ email }),
     }),
 
   login: (body: { email: string; password: string }) =>

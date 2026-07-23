@@ -21,12 +21,15 @@ import { useAuth } from "@/contexts/auth-provider";
 import { ApiError } from "@/lib/api";
 
 export function LoginForm() {
-  const { login, user, loading: authLoading } = useAuth();
+  const { login, resendVerification, user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState("");
+  const [resendError, setResendError] = useState("");
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -37,6 +40,8 @@ export function LoginForm() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
+    setResendSuccess("");
+    setResendError("");
     setSubmitting(true);
     try {
       await login(email.trim(), password);
@@ -44,6 +49,20 @@ export function LoginForm() {
       setError(err instanceof ApiError ? err.message : "Login failed");
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleResend() {
+    setResendSuccess("");
+    setResendError("");
+    setResending(true);
+    try {
+      const res = await resendVerification(email.trim());
+      setResendSuccess(res?.message || "Verification email sent.");
+    } catch (err) {
+      setResendError(err instanceof ApiError ? err.message : "Failed to resend.");
+    } finally {
+      setResending(false);
     }
   }
 
@@ -85,9 +104,32 @@ export function LoginForm() {
                 />
               </div>
               {error && (
-                <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {error}
-                </p>
+                <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive space-y-2">
+                  <p>{error}</p>
+                  {error.includes("verify") && (
+                    <div className="pt-1">
+                      {resendSuccess ? (
+                        <p className="text-xs text-emerald-600 font-medium bg-emerald-500/10 p-1.5 rounded-md">
+                          {resendSuccess}
+                        </p>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleResend}
+                          className="text-xs text-primary hover:underline font-semibold flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0"
+                          disabled={resending}
+                        >
+                          {resending ? "Resending..." : "Resend verification link"}
+                        </button>
+                      )}
+                      {resendError && (
+                        <p className="text-xs text-destructive mt-1 font-medium">
+                          {resendError}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
               <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting ? "Logging in..." : "Log in"}
