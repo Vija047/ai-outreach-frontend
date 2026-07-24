@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import {
   IconLoader2,
   IconCircleCheck,
@@ -23,50 +23,51 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/auth-provider";
-import { supabase } from "@/lib/supabase";
+import { api, isProfileComplete } from "@/lib/api";
 
 type VerifyState = "verifying" | "success" | "error" | "check-email";
 
 export function VerifyEmailView() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || searchParams.get("token_hash");
-  const { resendVerification } = useAuth();
+  const { resendVerification, establishSession } = useAuth();
   const [state, setState] = useState<VerifyState>(token ? "verifying" : "check-email");
   const [message, setMessage] = useState("");
   const [resendEmail, setResendEmail] = useState("");
   const [resendSuccess, setResendSuccess] = useState("");
   const [resendError, setResendError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const handled = useRef(false);
 
   useEffect(() => {
-    if (!token) {
-      setState("check-email");
-      return;
-    }
+    if (!token || handled.current) return;
+    handled.current = true;
 
     let isMounted = true;
     void (async () => {
       try {
-        const { error } = await supabase.auth.verifyOtp({
-          token_hash: token,
-          type: "signup",
-        });
+        const res = await api.verifyEmail(token);
 
-        if (error) {
-          throw error;
+        if (!isMounted) return;
+
+        if (res.accessToken) {
+          const profile = await establishSession(res.accessToken);
+          router.replace(
+            profile && !isProfileComplete(profile) ? "/onboarding" : "/dashboard",
+          );
+          return;
         }
 
-        if (isMounted) {
-          setState("success");
-          setMessage("Email verified successfully.");
-        }
+        setState("success");
+        setMessage(res.message || "Email verified successfully.");
       } catch (err) {
         if (isMounted) {
           setState("error");
           setMessage(
             err instanceof Error
               ? err.message
-              : "Verification link is invalid or expired."
+              : "Verification link is invalid or expired.",
           );
         }
       }
@@ -75,7 +76,7 @@ export function VerifyEmailView() {
     return () => {
       isMounted = false;
     };
-  }, [token]);
+  }, [token, router, establishSession]);
 
   async function handleResend(e: FormEvent) {
     e.preventDefault();

@@ -100,15 +100,21 @@ async function request<T>(
 
 export const api = {
   signup: (body: { name: string; email: string; password: string }) =>
-    request<{ message: string }>("/auth/signup", {
+    request<{
+      message: string;
+      autoLoggedIn?: boolean;
+      accessToken?: string;
+      user?: User;
+    }>("/auth/signup", {
       method: "POST",
       body: JSON.stringify(body),
     }),
 
   verifyEmail: (token: string) =>
-    request<{ message: string }>(`/auth/verify-email?token=${encodeURIComponent(token)}`, {
-      method: "GET",
-    }),
+    request<AuthResponse & { message: string }>(
+      `/auth/verify-email?token=${encodeURIComponent(token)}`,
+      { method: "GET" },
+    ),
 
   resendVerification: (email: string) =>
     request<{ message: string }>("/auth/resend-verification", {
@@ -120,6 +126,18 @@ export const api = {
     request<AuthResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(body),
+    }),
+
+  forgotPassword: (email: string) =>
+    request<{ message: string }>("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (token: string, password: string) =>
+    request<{ message: string }>("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ token, password }),
     }),
 
   logout: () => request<{ message: string }>("/auth/logout", { method: "POST" }),

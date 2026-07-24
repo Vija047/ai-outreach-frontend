@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 
 export const metadata = {
@@ -6,5 +8,15 @@ export const metadata = {
 };
 
 export default function ResetPasswordPage() {
-  return <ResetPasswordForm />;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[100dvh] items-center justify-center">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      }
+    >
+      <ResetPasswordForm />
+    </Suspense>
+  );
 }

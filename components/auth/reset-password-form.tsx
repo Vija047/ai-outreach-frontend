@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { Navbar } from "@/components/landing/navbar";
@@ -21,7 +21,8 @@ import { IconLockCheck } from "@tabler/icons-react";
 
 export function ResetPasswordForm() {
   const { resetPassword } = useAuth();
-  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") ?? "";
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,11 @@ export function ResetPasswordForm() {
     e.preventDefault();
     setError("");
 
+    if (!token) {
+      setError("Missing reset token. Request a new password reset link.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -39,7 +45,7 @@ export function ResetPasswordForm() {
 
     setLoading(true);
     try {
-      await resetPassword(password);
+      await resetPassword(token, password);
       setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to reset password");
@@ -62,6 +68,15 @@ export function ResetPasswordForm() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {!token && (
+                  <p className="mb-4 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    This reset link is invalid.{" "}
+                    <Link href="/forgot-password" className="underline">
+                      Request a new one
+                    </Link>
+                    .
+                  </p>
+                )}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="password">New Password</Label>
@@ -73,6 +88,7 @@ export function ResetPasswordForm() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      disabled={!token}
                     />
                   </div>
                   <div className="space-y-2">
@@ -85,6 +101,7 @@ export function ResetPasswordForm() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
+                      disabled={!token}
                     />
                   </div>
                   {error && (
@@ -92,7 +109,7 @@ export function ResetPasswordForm() {
                       {error}
                     </p>
                   )}
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading || !token}>
                     {loading ? "Updating..." : "Update password"}
                   </Button>
                 </form>
@@ -111,12 +128,12 @@ export function ResetPasswordForm() {
               </CardHeader>
               <CardContent className="text-center pt-2 pb-6">
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  You can now securely log in or proceed to your dashboard.
+                  You can now log in with your new password.
                 </p>
               </CardContent>
               <CardFooter>
                 <Button asChild className="w-full">
-                  <Link href="/dashboard">Go to Dashboard</Link>
+                  <Link href="/login">Go to Login</Link>
                 </Button>
               </CardFooter>
             </>

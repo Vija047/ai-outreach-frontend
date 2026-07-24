@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 import { Navbar } from "@/components/landing/navbar";
 import {
@@ -12,48 +12,48 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/contexts/auth-provider";
-import { api, isProfileComplete } from "@/lib/api";
-import { setToken } from "@/lib/auth-storage";
+import { isProfileComplete } from "@/lib/api";
 
 function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { refreshProfile } = useAuth();
+  const { establishSession } = useAuth();
   const [message, setMessage] = useState("Completing sign-in...");
+  const handled = useRef(false);
 
   useEffect(() => {
+    if (handled.current) return;
+
     const token = searchParams.get("token");
     const error = searchParams.get("error");
 
     if (error) {
+      handled.current = true;
       setMessage(decodeURIComponent(error));
       const timer = setTimeout(() => router.replace("/login"), 3000);
       return () => clearTimeout(timer);
     }
 
     if (!token) {
+      handled.current = true;
       setMessage("Missing sign-in token");
       const timer = setTimeout(() => router.replace("/login"), 3000);
       return () => clearTimeout(timer);
     }
 
+    handled.current = true;
     void (async () => {
       try {
-        setToken(token);
-        const user = await api.getMe();
-        const profile = await refreshProfile();
-        if (profile && !isProfileComplete(profile)) {
-          router.replace("/onboarding");
-        } else {
-          router.replace("/dashboard");
-        }
-        void user;
+        const profile = await establishSession(token);
+        router.replace(
+          profile && !isProfileComplete(profile) ? "/onboarding" : "/dashboard",
+        );
       } catch {
         setMessage("Sign-in failed. Redirecting to login...");
         setTimeout(() => router.replace("/login"), 2000);
       }
     })();
-  }, [searchParams, router, refreshProfile]);
+  }, [searchParams, router, establishSession]);
 
   return (
     <div className="flex min-h-[100dvh] flex-col">

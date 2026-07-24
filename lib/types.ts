@@ -4,6 +4,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  emailVerified?: boolean;
+  avatarUrl?: string | null;
   plan: UserPlan;
   createdAt: string;
   updatedAt: string;

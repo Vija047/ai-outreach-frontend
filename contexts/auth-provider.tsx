@@ -12,7 +12,6 @@ import {
 
 import { api, isProfileComplete, ApiError } from "@/lib/api";
 import { clearToken, getToken, setToken } from "@/lib/auth-storage";
-import { supabase } from "@/lib/supabase";
 import type { SellerProfile, User } from "@/lib/types";
 
 interface AuthContextValue {
@@ -29,8 +28,9 @@ interface AuthContextValue {
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   refreshProfile: () => Promise<SellerProfile | null>;
+  establishSession: (accessToken: string) => Promise<SellerProfile | null>;
   forgotPassword: (email: string) => Promise<void>;
-  resetPassword: (password: string) => Promise<void>;
+  resetPassword: (token: string, password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -67,7 +67,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await refreshProfile();
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        await supabase.auth.signOut().catch(() => null);
         clearToken();
         setUser(null);
         setProfile(null);
@@ -79,64 +78,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [refreshProfile]);
 
-  // Listen to Supabase auth state changes
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        setToken(session.access_token);
-        await refreshUser();
-      } else {
+  const establishSession = useCallback(
+    async (accessToken: string): Promise<SellerProfile | null> => {
+      setToken(accessToken);
+      setLoading(true);
+      try {
+        const me = await api.getMe();
+        setUser(me);
+        let p: SellerProfile | null = null;
+        try {
+          p = await api.getProfile();
+          setProfile(p);
+        } catch {
+          setProfile(null);
+        }
+        return p;
+      } catch (err) {
         clearToken();
         setUser(null);
         setProfile(null);
+        throw err;
+      } finally {
         setLoading(false);
       }
-    });
+    },
+    [],
+  );
 
-    return () => {
-      subscription.unsubscribe();
-    };
+  useEffect(() => {
+    void refreshUser();
   }, [refreshUser]);
 
   const signup = useCallback(
     async (name: string, email: string, password: string) => {
-      const { data, error } = await supabase.auth.signUp({
-        email,
+      const res = await api.signup({
+        name: name.trim(),
+        email: email.trim(),
         password,
-        options: {
-          data: {
-            name: name.trim(),
-            full_name: name.trim(),
-          },
-        },
       });
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (data.session) {
-        setToken(data.session.access_token);
-        try {
-          const me = await api.getMe();
-          setUser(me);
-          const p = await refreshProfile();
-          if (p && !isProfileComplete(p)) {
-            router.push("/onboarding");
-          } else {
-            router.push("/dashboard");
-          }
-        } catch {
+      if (res.autoLoggedIn && res.accessToken && res.user) {
+        setToken(res.accessToken);
+        setUser(res.user);
+        const p = await refreshProfile();
+        if (p && !isProfileComplete(p)) {
+          router.push("/onboarding");
+        } else {
           router.push("/dashboard");
         }
-        return { autoLoggedIn: true, message: "Registration successful!" };
+        return { autoLoggedIn: true, message: res.message };
       }
 
       return {
         autoLoggedIn: false,
         message:
+          res.message ||
           "Registration successful. Please verify your email before logging in.",
       };
     },
@@ -144,54 +140,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const resendVerification = useCallback(async (email: string) => {
-    const { error } = await supabase.auth.resend({
-      type: "signup",
-      email,
-    });
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    return { message: "Verification email resent successfully." };
+    return api.resendVerification(email.trim());
   }, []);
 
   const login = useCallback(
     async (email: string, password: string) => {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const res = await api.login({ email: email.trim(), password });
+      setToken(res.accessToken);
+      setUser(res.user);
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (data.user && !data.user.email_confirmed_at) {
-        await supabase.auth.signOut();
-        throw new Error("Please verify your email before logging in.");
-      }
-
-      if (data.session) {
-        setToken(data.session.access_token);
-        
-        // Wait for NestJS backend to synchronize the user profile
-        const me = await api.getMe();
-        setUser(me);
-        
-        const p = await refreshProfile();
-        if (p && !isProfileComplete(p)) {
-          router.push("/onboarding");
-        } else {
-          router.push("/dashboard");
-        }
+      const p = await refreshProfile();
+      if (p && !isProfileComplete(p)) {
+        router.push("/onboarding");
+      } else {
+        router.push("/dashboard");
       }
     },
     [router, refreshProfile],
   );
 
   const logout = useCallback(async () => {
-    await supabase.auth.signOut();
+    try {
+      await api.logout();
+    } catch {
+      // token may already be invalid
+    }
     clearToken();
     setUser(null);
     setProfile(null);
@@ -199,22 +172,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   const forgotPassword = useCallback(async (email: string) => {
-    const redirectTo = `${window.location.origin}/reset-password`;
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo,
-    });
-    if (error) {
-      throw new Error(error.message);
-    }
+    await api.forgotPassword(email.trim());
   }, []);
 
-  const resetPassword = useCallback(async (password: string) => {
-    const { error } = await supabase.auth.updateUser({
-      password,
-    });
-    if (error) {
-      throw new Error(error.message);
-    }
+  const resetPassword = useCallback(async (token: string, password: string) => {
+    await api.resetPassword(token, password);
   }, []);
 
   const value = useMemo(
@@ -228,6 +190,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       refreshUser,
       refreshProfile,
+      establishSession,
       forgotPassword,
       resetPassword,
     }),
@@ -241,6 +204,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       refreshUser,
       refreshProfile,
+      establishSession,
       forgotPassword,
       resetPassword,
     ],
