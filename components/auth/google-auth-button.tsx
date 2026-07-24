@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { isGoogleAuthEnabled } from "@/lib/api";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export function GoogleAuthButton({ label = "Continue with Google" }: { label?: string }) {
   if (!isGoogleAuthEnabled()) {
@@ -15,6 +15,12 @@ export function GoogleAuthButton({ label = "Continue with Google" }: { label?: s
       variant="outline"
       className="w-full"
       onClick={async () => {
+        if (!isSupabaseConfigured()) {
+          alert(
+            "Supabase configuration is missing. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel Environment Variables and redeploy.",
+          );
+          return;
+        }
         const redirectTo = `${window.location.origin}/dashboard`;
         await supabase.auth.signInWithOAuth({
           provider: "google",

@@ -45,8 +45,10 @@ export function SignupForm() {
     setError("");
     setSubmitting(true);
     try {
-      await signup(name.trim(), email.trim(), password);
-      setStep("success");
+      const res = await signup(name.trim(), email.trim(), password);
+      if (!res?.autoLoggedIn) {
+        setStep("success");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create account");
     } finally {

@@ -20,7 +20,11 @@ interface AuthContextValue {
   profile: SellerProfile | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<{ message: string }>;
+  signup: (
+    name: string,
+    email: string,
+    password: string,
+  ) => Promise<{ message: string; autoLoggedIn?: boolean }>;
   resendVerification: (email: string) => Promise<{ message: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -62,12 +66,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(me);
       await refreshProfile();
     } catch (err) {
-      console.error("Failed to load user profile from backend:", err);
       if (err instanceof ApiError && err.status === 401) {
-        await supabase.auth.signOut();
+        await supabase.auth.signOut().catch(() => null);
         clearToken();
         setUser(null);
         setProfile(null);
+      } else {
+        console.error("Failed to load user profile from backend:", err);
       }
     } finally {
       setLoading(false);
@@ -97,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signup = useCallback(
     async (name: string, email: string, password: string) => {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -112,12 +117,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(error.message);
       }
 
+      if (data.session) {
+        setToken(data.session.access_token);
+        try {
+          const me = await api.getMe();
+          setUser(me);
+          const p = await refreshProfile();
+          if (p && !isProfileComplete(p)) {
+            router.push("/onboarding");
+          } else {
+            router.push("/dashboard");
+          }
+        } catch {
+          router.push("/dashboard");
+        }
+        return { autoLoggedIn: true, message: "Registration successful!" };
+      }
+
       return {
+        autoLoggedIn: false,
         message:
           "Registration successful. Please verify your email before logging in.",
       };
     },
-    [],
+    [router, refreshProfile],
   );
 
   const resendVerification = useCallback(async (email: string) => {

@@ -113,7 +113,19 @@ export function LoginForm() {
               </div>
               {error && (
                 <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive space-y-2">
-                  <p>{error}</p>
+                  <p>
+                    {error.toLowerCase().includes("invalid login credentials")
+                      ? "User credentials do not exist or password is incorrect. Please check your email/password or create a new account."
+                      : error}
+                  </p>
+                  {error.toLowerCase().includes("invalid login credentials") && (
+                    <div className="pt-1 text-xs">
+                      Don't have an account yet?{" "}
+                      <Link href="/signup" className="font-semibold underline hover:text-primary">
+                        Sign up free
+                      </Link>
+                    </div>
+                  )}
                   {error.includes("verify") && (
                     <div className="pt-1">
                       {resendSuccess ? (
