@@ -138,29 +138,30 @@ export const TypewriterEffectSmooth = ({
   };
 
   return (
-    <div className={cn("flex space-x-1 my-6", className)}>
+    <div
+      className={cn(
+        "my-6 flex max-w-full flex-col items-center justify-center gap-2 sm:flex-row sm:items-end sm:gap-1",
+        className,
+      )}
+    >
       <motion.div
-        className="overflow-hidden pb-2"
+        className="max-w-full overflow-hidden pb-1 sm:pb-2"
         initial={{
           width: "0%",
         }}
         whileInView={{
           width: "fit-content",
         }}
+        viewport={{ once: true, amount: 0.6 }}
         transition={{
           duration: 2,
           ease: "linear",
           delay: 1,
         }}
       >
-        <div
-          className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl"
-          style={{
-            whiteSpace: "nowrap",
-          }}
-        >
+        <div className="text-balance px-1 text-2xl font-bold leading-tight tracking-tighter sm:px-0 sm:text-3xl sm:whitespace-nowrap md:text-4xl lg:text-5xl xl:text-6xl">
           {renderWords()}{" "}
-        </div>{" "}
+        </div>
       </motion.div>
       <motion.span
         initial={{
@@ -176,8 +177,8 @@ export const TypewriterEffectSmooth = ({
           repeatType: "reverse",
         }}
         className={cn(
-          "block rounded-sm w-[4px]  h-4 sm:h-6 xl:h-12 bg-blue-500",
-          cursorClassName
+          "hidden shrink-0 rounded-sm bg-blue-500 sm:block w-[3px] h-6 md:h-8 lg:h-10 xl:h-12",
+          cursorClassName,
         )}
       ></motion.span>
     </div>

@@ -34,13 +34,13 @@ export function HeroSection() {
   const reduce = useReducedMotion();
 
   return (
-    <section className="relative min-h-[100dvh] overflow-hidden pt-16 sm:pt-20">
+    <section className="relative min-h-[100dvh] overflow-x-hidden pt-16 sm:pt-20">
       <AmbientGlow
-        className="-left-24 top-1/4 size-72 bg-primary/20"
+        className="-left-24 top-1/4 hidden size-72 bg-primary/20 sm:block"
         duration={9}
       />
       <AmbientGlow
-        className="-right-16 top-1/3 size-64 bg-cyan-500/15"
+        className="-right-16 top-1/3 hidden size-64 bg-cyan-500/15 sm:block"
         duration={11}
       />
 
@@ -57,58 +57,60 @@ export function HeroSection() {
       </div>
       <BackgroundBeams />
 
-      <HeroHighlight containerClassName="min-h-[calc(100dvh-4rem)] px-4 sm:min-h-[calc(100dvh-5rem)]">
-        <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+      <HeroHighlight containerClassName="min-h-[calc(100dvh-4rem)] px-3 sm:min-h-[calc(100dvh-5rem)] sm:px-4">
+        <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center">
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 12, scale: 0.96 }}
             animate={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-6 inline-flex items-center rounded-full border border-border bg-muted/50 px-4 py-1"
+            className="mb-4 inline-flex max-w-full items-center rounded-full border border-border bg-muted/50 px-3 py-1 sm:mb-6 sm:px-4"
           >
-            <AnimatedShinyText className="text-sm font-medium">
+            <AnimatedShinyText className="text-xs font-medium sm:text-sm">
               AI-powered cold outreach
             </AnimatedShinyText>
           </motion.div>
 
           {reduce ? (
-            <h1 className="text-3xl font-bold tracking-tighter text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
+            <h1 className="max-w-[18ch] text-balance text-2xl font-bold tracking-tighter text-foreground sm:max-w-none sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
               Paste a URL. Get outreach ready to send.
             </h1>
           ) : (
-            <div className="flex w-full justify-center">
+            <div className="flex w-full max-w-full justify-center overflow-hidden">
               <TypewriterEffectSmooth
                 words={headlineWords}
-                className="my-0 justify-center"
-                cursorClassName="bg-primary h-8 sm:h-10 md:h-12 lg:h-14"
+                className="my-0 w-full justify-center"
+                cursorClassName="bg-primary"
               />
             </div>
           )}
 
-          <HeroUrlInput className="mt-8 sm:mt-10" />
+          <HeroUrlInput className="mt-6 w-full sm:mt-10" />
 
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 16 }}
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6 flex flex-wrap items-center justify-center gap-4"
+            className="mt-5 flex w-full max-w-sm flex-col items-stretch gap-3 sm:mt-6 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4"
           >
             <motion.div
+              className="w-full sm:w-auto"
               whileHover={reduce ? undefined : { scale: 1.03 }}
               whileTap={reduce ? undefined : { scale: 0.97 }}
               transition={springHover}
             >
-              <Link href="/signup">
-                <ShimmerButton className="h-11 px-8 text-sm font-medium shadow-2xl">
+              <Link href="/signup" className="block w-full sm:inline-block sm:w-auto">
+                <ShimmerButton className="h-11 w-full px-8 text-sm font-medium shadow-2xl sm:w-auto">
                   Start for free
                 </ShimmerButton>
               </Link>
             </motion.div>
             <motion.div
+              className="w-full sm:w-auto"
               whileHover={reduce ? undefined : { scale: 1.02 }}
               whileTap={reduce ? undefined : { scale: 0.98 }}
               transition={springHover}
             >
-              <Button variant="outline" size="lg" asChild>
+              <Button variant="outline" size="lg" className="w-full sm:w-auto" asChild>
                 <Link href="#demo">See how it works</Link>
               </Button>
             </motion.div>
@@ -125,7 +127,7 @@ export function HeroSection() {
             transition: { staggerChildren: 0.08, delayChildren: 0.75 },
           },
         }}
-        className="relative z-10 mx-auto flex max-w-7xl flex-wrap justify-center gap-3 px-4 pb-16"
+        className="relative z-10 mx-auto flex max-w-7xl flex-wrap justify-center gap-2 px-3 pb-12 sm:gap-3 sm:px-4 sm:pb-16"
       >
         {featurePills.map((pill) => (
           <motion.div
@@ -144,7 +146,7 @@ export function HeroSection() {
           >
             <Badge
               variant="secondary"
-              className="rounded-full px-4 py-1.5 text-sm"
+              className="rounded-full px-3 py-1 text-xs sm:px-4 sm:py-1.5 sm:text-sm"
             >
               {pill}
             </Badge>

@@ -177,7 +177,7 @@ export function PlaceholdersAndVanishInput({
   return (
     <form
       className={cn(
-        "relative mx-auto h-12 w-full max-w-xl overflow-hidden rounded-full bg-transparent shadow-none transition duration-200",
+        "relative mx-auto h-14 w-full max-w-xl overflow-hidden rounded-[inherit] bg-transparent shadow-none transition duration-200 sm:h-12",
         value && "bg-muted/30",
       )}
       onSubmit={handleSubmit}
@@ -201,7 +201,7 @@ export function PlaceholdersAndVanishInput({
         value={value}
         type="text"
         className={cn(
-          "relative z-50 h-full w-full rounded-full border-none bg-transparent pl-4 pr-20 text-sm text-foreground focus:outline-none focus:ring-0 sm:pl-10 sm:text-base",
+          "relative z-50 h-full w-full rounded-[inherit] border-none bg-transparent pl-4 pr-14 text-sm text-foreground focus:outline-none focus:ring-0 sm:pl-10 sm:pr-20 sm:text-base",
           animating && "text-transparent",
         )}
       />
@@ -209,7 +209,7 @@ export function PlaceholdersAndVanishInput({
       <button
         disabled={!value}
         type="submit"
-        className="absolute right-2 top-1/2 z-50 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-primary transition duration-200 disabled:bg-muted disabled:opacity-60"
+        className="absolute right-2 top-1/2 z-50 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-primary transition duration-200 disabled:bg-muted disabled:opacity-60 sm:h-9 sm:w-9"
       >
         <motion.svg
           xmlns="http://www.w3.org/2000/svg"
@@ -243,7 +243,7 @@ export function PlaceholdersAndVanishInput({
         </motion.svg>
       </button>
 
-      <div className="absolute inset-0 flex items-center rounded-full pointer-events-none">
+      <div className="absolute inset-0 flex items-center rounded-[inherit] pointer-events-none">
         <AnimatePresence mode="wait">
           {!value && (
             <motion.p
@@ -264,7 +264,7 @@ export function PlaceholdersAndVanishInput({
                 duration: 0.3,
                 ease: "linear",
               }}
-              className="w-[calc(100%-2rem)] truncate pl-4 text-left text-sm font-normal text-muted-foreground sm:pl-12 sm:text-base"
+              className="w-[calc(100%-3.5rem)] truncate pl-4 text-left text-xs font-normal text-muted-foreground sm:w-[calc(100%-2rem)] sm:pl-12 sm:text-base"
             >
               {placeholders[currentPlaceholder]}
             </motion.p>

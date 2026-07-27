@@ -13,10 +13,10 @@ import { cn } from "@/lib/utils";
 const PENDING_URL_KEY = "pending-analyze-url";
 
 const URL_PLACEHOLDERS = [
-  "https://stripe.com",
-  "https://linear.app/about",
-  "https://notion.so/careers",
-  "https://vercel.com/security",
+  "stripe.com",
+  "linear.app/about",
+  "notion.so/careers",
+  "vercel.com",
 ];
 
 export function HeroUrlInput({ className }: { className?: string }) {
@@ -46,9 +46,9 @@ export function HeroUrlInput({ className }: { className?: string }) {
       initial={reduce ? false : { opacity: 0, y: 20 }}
       animate={reduce ? undefined : { opacity: 1, y: 0 }}
       transition={{ duration: 0.55, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
-      className={cn("relative mx-auto w-full max-w-2xl", className)}
+      className={cn("relative mx-auto w-full max-w-2xl px-1 sm:px-0", className)}
     >
-      <div className="relative overflow-hidden rounded-full border border-border/60 bg-card/80 shadow-[0_8px_40px_rgb(0,0,0,0.12)] backdrop-blur-md dark:shadow-[0_8px_40px_rgb(0,0,0,0.45)]">
+      <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/80 shadow-[0_8px_40px_rgb(0,0,0,0.12)] backdrop-blur-md sm:rounded-full dark:shadow-[0_8px_40px_rgb(0,0,0,0.45)]">
         {!reduce ? (
           <BorderBeam size={240} duration={14} colorFrom="#2563eb" colorTo="#38bdf8" />
         ) : null}
