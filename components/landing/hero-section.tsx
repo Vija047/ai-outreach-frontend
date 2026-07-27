@@ -7,16 +7,28 @@ import { BackgroundBeams } from "@/components/aceternity/background-beams";
 import { HeroHighlight } from "@/components/aceternity/hero-highlight";
 import {
   AmbientGlow,
-  HeroWordReveal,
   springHover,
 } from "@/components/landing/motion-primitives";
+import { HeroUrlInput } from "@/components/landing/hero-url-input";
 import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 import { DotPattern } from "@/components/magicui/dot-pattern";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
+import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const featurePills = ["Analyze", "Hooks", "Email", "LinkedIn"];
+
+const headlineWords = [
+  { text: "Paste" },
+  { text: "a" },
+  { text: "URL." },
+  { text: "Get" },
+  { text: "outreach", className: "text-primary" },
+  { text: "ready", className: "text-primary" },
+  { text: "to", className: "text-primary" },
+  { text: "send.", className: "text-primary" },
+];
 
 export function HeroSection() {
   const reduce = useReducedMotion();
@@ -46,7 +58,7 @@ export function HeroSection() {
       <BackgroundBeams />
 
       <HeroHighlight containerClassName="min-h-[calc(100dvh-4rem)] px-4 sm:min-h-[calc(100dvh-5rem)]">
-        <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
+        <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 12, scale: 0.96 }}
             animate={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
@@ -58,25 +70,27 @@ export function HeroSection() {
             </AnimatedShinyText>
           </motion.div>
 
-          <h1 className="text-3xl font-bold tracking-tighter text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
-            <HeroWordReveal text="Personalized outreach in minutes" />
-          </h1>
+          {reduce ? (
+            <h1 className="text-3xl font-bold tracking-tighter text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
+              Paste a URL. Get outreach ready to send.
+            </h1>
+          ) : (
+            <div className="flex w-full justify-center">
+              <TypewriterEffectSmooth
+                words={headlineWords}
+                className="my-0 justify-center"
+                cursorClassName="bg-primary h-8 sm:h-10 md:h-12 lg:h-14"
+              />
+            </div>
+          )}
 
-          <motion.p
-            initial={reduce ? false : { opacity: 0, y: 16 }}
-            animate={reduce ? undefined : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6 max-w-[65ch] text-base leading-relaxed text-muted-foreground md:text-lg"
-          >
-            Analyze any company URL, pick a hook, and get email plus LinkedIn
-            copy ready to send.
-          </motion.p>
+          <HeroUrlInput className="mt-8 sm:mt-10" />
 
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 16 }}
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-8 flex flex-wrap items-center justify-center gap-4"
+            className="mt-6 flex flex-wrap items-center justify-center gap-4"
           >
             <motion.div
               whileHover={reduce ? undefined : { scale: 1.03 }}

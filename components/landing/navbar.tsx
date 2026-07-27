@@ -21,8 +21,9 @@ export function Navbar() {
       initial={reduce ? false : { opacity: 0, y: -12 }}
       animate={reduce ? undefined : { opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      className="sticky top-0 z-50"
     >
-      <NavbarMenu className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
+      <NavbarMenu className="border-b border-border/50 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:h-16 md:px-6">
           <Link
             href="/"

@@ -6,7 +6,15 @@ const backendOrigin = (
   ""
 ).replace(/\/$/, "");
 
+const devAllowedOrigins = (
+  process.env.NEXT_DEV_ALLOWED_ORIGINS ?? "169.254.88.34"
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 const nextConfig: NextConfig = {
+  allowedDevOrigins: devAllowedOrigins,
   images: {
     remotePatterns: [
       {

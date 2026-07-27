@@ -21,6 +21,7 @@ import {
   RecentCompaniesList,
 } from "@/components/app/recent-companies-list";
 import { StatCard } from "@/components/app/stat-card";
+import { consumePendingAnalyzeUrl } from "@/components/landing/hero-url-input";
 import { DotPattern } from "@/components/magicui/dot-pattern";
 import { useCompanyAnalysis } from "@/hooks/use-company-analysis";
 import { useAuth } from "@/contexts/auth-provider";
@@ -45,7 +46,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.location.hash === "#analyze") {
+    const pending = consumePendingAnalyzeUrl();
+    if (pending) {
+      analysis.setUrl(pending);
+    }
+    if (window.location.hash === "#analyze" || pending) {
       document.getElementById("analyze")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, []);

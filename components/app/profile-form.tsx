@@ -5,6 +5,7 @@ import {
   IconBriefcase,
   IconCheck,
   IconLink,
+  IconLogout,
   IconSparkles,
   IconTarget,
   IconUser,
@@ -83,7 +84,7 @@ function SectionCard({
 }
 
 export function ProfileForm() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, logout } = useAuth();
   const reduce = useReducedMotion();
   const [role, setRole] = useState("");
   const [company, setCompany] = useState("");
@@ -389,6 +390,18 @@ export function ProfileForm() {
           >
             {submitting ? "Saving..." : "Save profile"}
           </ShimmerButton>
+        </div>
+
+        <div className="md:hidden">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={logout}
+          >
+            <IconLogout className="size-4" stroke={1.5} />
+            Log out
+          </Button>
         </div>
       </form>
     </AppPage>
