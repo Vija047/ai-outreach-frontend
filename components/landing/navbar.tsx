@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { NavbarMenu, MobileNav } from "@/components/aceternity/navbar-menu";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { AppLogo } from "@/components/ui/logo";
 
 const navLinks = [
   { label: "Features", href: "#features" },
@@ -24,20 +25,8 @@ export function Navbar() {
       className="sticky top-0 z-50"
     >
       <NavbarMenu className="border-b border-border/50 bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:h-16 md:px-6">
-          <Link
-            href="/"
-            className="flex min-w-0 items-center gap-2 font-semibold tracking-tight"
-          >
-            <motion.span
-              whileHover={reduce ? undefined : { rotate: -6, scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground"
-            >
-              AO
-            </motion.span>
-            <span className="truncate">AI Outreach</span>
-          </Link>
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:h-24 md:px-6">
+          <AppLogo href="/" height={120} width={200} imageClassName="h-20 sm:h-24 md:h-28 w-auto -my-3 sm:-my-4" />
 
           <div className="hidden items-center gap-8 lg:flex">
             {navLinks.map((link) => (

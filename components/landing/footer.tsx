@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Separator } from "@/components/ui/separator";
+import { AppLogo } from "@/components/ui/logo";
 
 const productLinks = [
   { label: "Features", href: "#features" },
@@ -26,12 +27,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:py-16 md:px-6">
         <div className="grid grid-cols-2 gap-8 sm:gap-10 md:grid-cols-4 md:gap-12">
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
-              <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-                AO
-              </span>
-              AI Outreach
-            </Link>
+            <AppLogo href="/" height={100} width={180} imageClassName="h-16 sm:h-20 w-auto -my-2" />
             <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
               Personalized cold outreach powered by company research and AI
               generation.

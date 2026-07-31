@@ -9,6 +9,7 @@ import {
   springHover,
 } from "@/components/landing/motion-primitives";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
+import { AppLogo } from "@/components/ui/logo";
 
 export function CtaSection() {
   const reduce = useReducedMotion();
@@ -21,7 +22,8 @@ export function CtaSection() {
         duration={10}
       />
 
-      <FadeIn className="relative mx-auto max-w-3xl px-4 text-center md:px-6">
+      <FadeIn className="relative mx-auto flex max-w-3xl flex-col items-center px-4 text-center md:px-6">
+        <AppLogo height={90} width={240} imageClassName="h-16 sm:h-20 w-auto mb-4" />
         <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl">
           Start outreach smarter today
         </h2>

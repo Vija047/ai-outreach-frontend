@@ -14,6 +14,7 @@ import {
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { AppLogo } from "@/components/ui/logo";
 import { useAuth } from "@/contexts/auth-provider";
 import { api, isProfileComplete } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -86,12 +87,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-dvh overflow-hidden bg-background">
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-card/50 md:flex">
         <div className="flex h-16 shrink-0 items-center gap-2 border-b border-border px-6">
-          <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-              AO
-            </span>
-            AI Outreach
-          </Link>
+          <AppLogo href="/dashboard" height={90} width={160} imageClassName="h-14 sm:h-16 w-auto -my-2" />
         </div>
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-4">
           {navItems.map((item) => (
@@ -125,12 +121,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex min-h-14 shrink-0 items-center justify-between gap-2 border-b border-border bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:min-h-16 sm:px-4 md:px-6">
           <div className="flex min-w-0 items-center gap-2 md:hidden">
-            <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
-                AO
-              </span>
-              <span className="truncate text-sm sm:text-base">AI Outreach</span>
-            </Link>
+            <AppLogo href="/dashboard" height={80} width={140} imageClassName="h-12 sm:h-14 w-auto -my-1" />
           </div>
           <div className="flex min-w-0 shrink-0 items-center justify-end gap-1.5 sm:gap-2 md:ml-auto">
             <CreditsBadge

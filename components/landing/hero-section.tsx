@@ -10,6 +10,7 @@ import {
   springHover,
 } from "@/components/landing/motion-primitives";
 import { HeroUrlInput } from "@/components/landing/hero-url-input";
+import { AppLogo } from "@/components/ui/logo";
 import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 import { DotPattern } from "@/components/magicui/dot-pattern";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
@@ -63,11 +64,14 @@ export function HeroSection() {
             initial={reduce ? false : { opacity: 0, y: 12, scale: 0.96 }}
             animate={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-4 inline-flex max-w-full items-center rounded-full border border-border bg-muted/50 px-3 py-1 sm:mb-6 sm:px-4"
+            className="mb-4 flex flex-col items-center gap-3 sm:mb-6"
           >
-            <AnimatedShinyText className="text-xs font-medium sm:text-sm">
-              AI-powered cold outreach
-            </AnimatedShinyText>
+            <AppLogo height={100} width={260} imageClassName="h-16 sm:h-20 md:h-24 w-auto" />
+            <div className="inline-flex max-w-full items-center rounded-full border border-border bg-muted/50 px-3 py-1 sm:px-4">
+              <AnimatedShinyText className="text-xs font-medium sm:text-sm">
+                AI-powered cold outreach
+              </AnimatedShinyText>
+            </div>
           </motion.div>
 
           {reduce ? (
